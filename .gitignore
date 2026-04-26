@@ -1,37 +1,29 @@
 # Python
 __pycache__/
 *.py[cod]
-*.pyo
-*.egg-info/
-dist/
-build/
-.eggs/
-
-# Virtual environments
 .venv/
 venv/
 env/
 
-# YOLO / Ultralytics run outputs
+# YOLO run outputs
 runs/
 wandb/
 *.cache
 
-# Model weights — distribute via GitHub Releases instead
+# Model weights — distribute via GitHub Releases
 *.pt
 *.pth
 *.onnx
 *.engine
 *.tflite
 
-# Dataset images — too large for git
+# Dataset images
 data/images/
 data/labels/
-datasets/
+datasets/images/
 
 # Jupyter
 .ipynb_checkpoints/
-*.ipynb
 
 # OS
 .DS_Store
