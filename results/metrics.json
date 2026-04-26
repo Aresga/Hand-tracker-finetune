@@ -1,0 +1,7 @@
+{
+  "_note": "Run train/val.py to populate this file with real metrics.",
+  "map50":      null,
+  "map50_95":   null,
+  "pose_map50": null,
+  "pose_pck":   null
+}

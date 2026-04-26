@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# YOLO / Ultralytics run outputs
+runs/
+wandb/
+*.cache
+
+# Model weights — distribute via GitHub Releases instead
+*.pt
+*.pth
+*.onnx
+*.engine
+*.tflite
+
+# Dataset images — too large for git
+data/images/
+data/labels/
+datasets/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

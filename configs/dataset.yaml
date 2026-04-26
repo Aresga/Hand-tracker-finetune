@@ -1,0 +1,56 @@
+# Dataset configuration for hand pose fine-tuning
+# Update the path fields to point to your local dataset.
+#
+# Expected directory layout:
+#   data/
+#   ├── images/
+#   │   ├── train/   ← training images (.jpg / .png)
+#   │   ├── val/     ← validation images
+#   │   └── test/    ← (optional) test images
+#   └── labels/
+#       ├── train/   ← YOLO keypoint .txt annotations
+#       ├── val/
+#       └── test/
+#
+# Annotation format per line:
+#   <class> <cx> <cy> <w> <h>  <kx0> <ky0> <kv0>  ...  <kx20> <ky20> <kv20>
+# All values normalized to [0,1]. kv = visibility (0=not labeled, 1=labeled).
+
+path:  ../data          # root relative to this file
+train: images/train
+val:   images/val
+test:  images/test      # optional
+
+# ── Classes ─────────────────────────────────────────────────────────────────
+nc: 1
+names:
+  0: hand
+
+# ── Keypoints ───────────────────────────────────────────────────────────────
+nkpt: 21
+kpt_shape: [21, 3]      # [num_keypoints, (x, y, visibility)]
+
+# Skeleton connectivity for visualisation (0-indexed joint pairs)
+# Ordering: index-first, thumb-last (matches model output)
+skip_labels: false
+skeleton:
+  - [0,  1]   # wrist  -> index MCP
+  - [1,  2]   # index MCP -> PIP
+  - [2,  3]   # index PIP -> DIP
+  - [3,  4]   # index DIP -> tip
+  - [0,  5]   # wrist  -> middle MCP
+  - [5,  6]
+  - [6,  7]
+  - [7,  8]
+  - [0,  9]   # wrist  -> ring MCP
+  - [9,  10]
+  - [10, 11]
+  - [11, 12]
+  - [0,  13]  # wrist  -> pinky MCP
+  - [13, 14]
+  - [14, 15]
+  - [15, 16]
+  - [0,  17]  # wrist  -> thumb CMC
+  - [17, 18]
+  - [18, 19]
+  - [19, 20]
