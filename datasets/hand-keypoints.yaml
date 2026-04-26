@@ -1,0 +1,45 @@
+# Ultralytics Hand Keypoints dataset
+# https://docs.ultralytics.com/datasets/pose/hand-keypoints/
+#
+# 26,768 images annotated with 21 hand keypoints (MediaPipe standard order)
+# Train: 18,776 images | Val: 7,992 images
+#
+# Ultralytics will auto-download this dataset on first use.
+# To use a local copy, set the path below to your local root.
+
+path:  hand-keypoints   # dataset root (auto-downloaded to ~/datasets/)
+train: train/images
+val:   val/images
+
+nc: 1
+names:
+  0: hand
+
+# 21 keypoints, 3 values each (x, y, visibility)
+nkpt: 21
+kpt_shape: [21, 3]
+
+# Skeleton connectivity — standard MediaPipe order
+# thumb-first: 0=wrist, 1-4=thumb, 5-8=index, 9-12=middle, 13-16=ring, 17-20=pinky
+flip_idx: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+skeleton:
+  - [0,  1]   # wrist  -> thumb CMC
+  - [1,  2]   # thumb  CMC -> MCP
+  - [2,  3]   # thumb  MCP -> IP
+  - [3,  4]   # thumb  IP  -> tip
+  - [0,  5]   # wrist  -> index MCP
+  - [5,  6]
+  - [6,  7]
+  - [7,  8]
+  - [0,  9]   # wrist  -> middle MCP
+  - [9,  10]
+  - [10, 11]
+  - [11, 12]
+  - [0,  13]  # wrist  -> ring MCP
+  - [13, 14]
+  - [14, 15]
+  - [15, 16]
+  - [0,  17]  # wrist  -> pinky MCP
+  - [17, 18]
+  - [18, 19]
+  - [19, 20]

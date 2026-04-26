@@ -1,0 +1,17 @@
+# Core — pinned to the versions used during training
+ultralytics>=8.3.0
+torch>=2.3.1
+torchvision>=0.18.1
+
+# ONNX export & inference
+onnx>=1.16.0
+onnxruntime-gpu>=1.18.0   # GPU inference (CUDA)
+# onnxruntime>=1.18.0     # CPU-only alternative
+
+# Utils
+numpy>=1.26.0
+opencv-python>=4.10.0
+Pillow>=10.4.0
+pyyaml>=6.0.1
+tqdm>=4.66.0
+matplotlib>=3.9.0

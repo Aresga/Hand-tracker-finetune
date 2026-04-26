@@ -5,11 +5,26 @@ The trained model is exported to ONNX and used by [HandSynth](https://github.com
 
 ---
 
+## Quick Start
+
+```bash
+# 1. Install dependencies
+pip install -r requirements.txt
+
+# 2. Train  (downloads dataset automatically on first run)
+python train.py
+
+# 3. Export to ONNX
+python export.py --weights runs/pose/hand_synth_v1/weights/best.pt
+```
+
+---
+
 ## Results
 
-![Training curves](newplot%20(1).png)
+![Training curves](results/training_curves.png)
 
-| Metric | Epoch 1 (baseline) | Epoch 51 (final) | Improvement |
+| Metric | Epoch 1 | Epoch 51 | Improvement |
 |---|---|---|---|
 | Pose mAP50 | 0.361 | **0.879** | +143% |
 | Box mAP50 | 0.970 | **0.991** | +2.2% |
@@ -17,7 +32,8 @@ The trained model is exported to ONNX and used by [HandSynth](https://github.com
 | Val Pose Loss | 5.392 | **1.382** | −74.4% |
 | Val Box Loss | 0.987 | **0.548** | −44.5% |
 
-Box detection was already strong from epoch 1 — the base `yolov8n-pose.pt` generalises well to hands out of the box. The major gain was in **keypoint localisation quality**: Pose mAP50 more than doubled over 51 epochs and the validation loss curve was still trending downward, meaning further epochs would push it higher.
+Box detection was already strong from epoch 1 — the base `yolov8n-pose.pt` generalises well to hands out of the box.
+The major gain was in **keypoint localisation quality**: Pose mAP50 more than doubled over 51 epochs and the validation loss was still trending down.
 
 ---
 
@@ -31,16 +47,14 @@ Box detection was already strong from epoch 1 — the base `yolov8n-pose.pt` gen
 | Train split | 18,776 images |
 | Val split | 7,992 images |
 | Keypoints per hand | 21 |
-| Format | YOLO keypoint (normalized, visibility flag) |
+| Format | YOLO keypoint (normalised, visibility flag) |
 | License | CC BY-NC-SA 4.0 |
-
-Annotations were generated using Google MediaPipe, ensuring high accuracy and consistency.
 
 ---
 
 ## Keypoint Ordering
 
-This model follows the **standard MediaPipe ordering** as documented in the [Ultralytics hand-keypoints dataset](https://docs.ultralytics.com/datasets/pose/hand-keypoints/#introduction).
+Standard **MediaPipe** order as used by the [Ultralytics Hand Keypoints dataset](https://docs.ultralytics.com/datasets/pose/hand-keypoints/#introduction).
 
 | Index | Joint | Finger |
 |---|---|---|
@@ -74,10 +88,10 @@ This model follows the **standard MediaPipe ordering** as documented in the [Ult
 ONNX output shape: [1, 300, 69]
 
 Per detection (69 values):
-  [0..3]  → bounding box (cx, cy, w, h) — normalised to input size
-  [4]     → objectness confidence
-  [5]     → class index (0 = hand)
-  [6..68] → 21 keypoints × 3  (x, y, confidence)
+  [0:4]   bounding box  (cx, cy, w, h) — normalised to input size
+  [4]     objectness confidence
+  [5]     class index   (0 = hand)
+  [6:69]  21 keypoints × 3  (x, y, confidence)
 ```
 
 ---
@@ -92,52 +106,21 @@ Per detection (69 values):
 | VRAM | 8 GB |
 | Training time | ~3 hours (51 epochs) |
 
-### Configuration (`args.yaml`)
+### Key Hyperparameters
 
 | Parameter | Value |
 |---|---|
 | Base model | `yolov8n-pose.pt` (pretrained) |
-| Epochs | 100 (stopped at 51 via patience) |
-| Patience | 5 |
+| Epochs | 100 (early stop at 51, patience=5) |
 | Batch size | 16 |
 | Image size | 640 × 640 |
 | Optimizer | Auto (AdamW) |
 | LR₀ / LRf | 0.01 / 0.01 |
-| Momentum | 0.937 |
-| Weight decay | 0.0005 |
-| Warmup epochs | 3 |
 | Pose loss weight | 12.0 |
 | Box loss weight | 7.5 |
-| DFL loss weight | 1.5 |
 | AMP | ✅ enabled |
-| Flip LR augment | 0.5 |
-| Mosaic augment | 1.0 |
-| Close mosaic | last 10 epochs |
 
-### Training Command
-
-```bash
-yolo pose train \
-  data=datasets/hand-keypoints.yaml \
-  model=yolov8n-pose.pt \
-  epochs=100 \
-  imgsz=640 \
-  batch=16 \
-  device=0 \
-  name=hand_synth_v1
-```
-
-### Export Command
-
-```bash
-yolo export \
-  model=runs/pose/hand_synth_v1/weights/best.pt \
-  format=onnx \
-  imgsz=640 \
-  opset=12 \
-  dynamic=False \
-  simplify=False
-```
+Full config in [`args.yaml`](args.yaml).
 
 ---
 
@@ -148,23 +131,28 @@ Weights are distributed via **[GitHub Releases](https://github.com/Aresga/Hand-t
 | File | Size | Description |
 |---|---|---|
 | `best.onnx` | 12 MB | ONNX export — use for inference |
-| `best.pt` | 24 MB | PyTorch checkpoint |
-| `last.pt` | 24 MB | Last epoch checkpoint |
+| `best.pt` | 24 MB | PyTorch checkpoint (best epoch) |
+| `last.pt` | 24 MB | PyTorch checkpoint (last epoch) |
 
 ---
 
 ## Repository Structure
 
 ```
-├── args.yaml                # Full training configuration
+├── train.py                   # Training script
+├── export.py                  # ONNX export script
+├── requirements.txt           # Pinned dependencies
+├── args.yaml                  # Full training configuration
 ├── datasets/
-│   └── hand-keypoints.yaml  # Dataset config
-├── results.csv              # Per-epoch metrics
-├── newplot (1).png          # Training curves
-├── labels.jpg               # Dataset label visualisation
-├── train_batch*.jpg         # Sample training batches
-├── monitor.py               # Training monitor script
-└── notes.txt                # Training notes and commands
+│   └── hand-keypoints.yaml   # Dataset config
+├── results/
+│   ├── results.csv            # Per-epoch metrics
+│   ├── training_curves.png    # Training graphs
+│   ├── labels.jpg             # Dataset label visualisation
+│   └── train_batch*.jpg       # Sample training batches
+├── docs/
+│   └── notes.txt              # Training notes and commands
+└── monitor.py                 # Live training monitor
 ```
 
 ---
@@ -172,6 +160,5 @@ Weights are distributed via **[GitHub Releases](https://github.com/Aresga/Hand-t
 ## Acknowledgements
 
 - Dataset by **Rion Dsilva** — [Ultralytics Hand Keypoints](https://docs.ultralytics.com/datasets/pose/hand-keypoints/)
-- Source images from: [11k Hands](https://sites.google.com/view/11khands), [2000 Hand Gestures](https://www.kaggle.com/), [Gesture Recognition](https://www.kaggle.com/)
-- Images distributed under **CC BY-NC-SA 4.0**
+- Source images: 11k Hands, 2000 Hand Gestures, Gesture Recognition — licensed under **CC BY-NC-SA 4.0**
 - Keypoint annotations generated with **Google MediaPipe**
